@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DerivDoubleTradeBot version="1.0" xmlns="https://example.com/deriv-double-trade-bot">
+  <metadata>
+    <name>Deriv Double Trade Bot</name>
+    <description>Concurrent HIGHER and LOWER paired trade engine for Deriv API.</description>
+    <author>GitHub Copilot</author>
+    <created>2026-10-20</created>
+  </metadata>
+
+  <account>
+    <defaultMode>demo</defaultMode>
+    <requireExplicitRealConfirmation>true</requireExplicitRealConfirmation>
+    <allowRealTrading>false</allowRealTrading>
+    <tokenSource>user_provided_secure_token</tokenSource>
+    <appId>1089</appId>
+    <websocketEndpoint>wss://ws.derivws.com/websockets/v3?app_id=YOUR_APP_ID</websocketEndpoint>
+    <publicEndpointDeprecated>wss://api.derivws.com/trading/v1/options/ws/public</publicEndpointDeprecated>
+  </account>
+
+  <market>
+    <symbol>R_100</symbol>
+    <market>Volatility 100 (1s)</market>
+    <currency>USD</currency>
+    <duration>5</duration>
+    <durationUnit>ticks</durationUnit>
+    <tradeMode>paired</tradeMode>
+    <maxPairedRuns>10</maxPairedRuns>
+    <autoRepeat>true</autoRepeat>
+  </market>
+
+  <contracts>
+    <contract id="higher-call">
+      <side>HIGHER</side>
+      <type>CALL</type>
+      <barrier>+0.1</barrier>
+      <stake>1.00</stake>
+      <duration>5</duration>
+      <durationUnit>ticks</durationUnit>
+      <proposalRequired>true</proposalRequired>
+      <purchaseRequired>true</purchaseRequired>
+      <barrierDirection>up</barrierDirection>
+    </contract>
+
+    <contract id="lower-put">
+      <side>LOWER</side>
+      <type>PUT</type>
+      <barrier>-0.1</barrier>
+      <stake>1.00</stake>
+      <duration>5</duration>
+      <durationUnit>ticks</durationUnit>
+      <proposalRequired>true</proposalRequired>
+      <purchaseRequired>true</purchaseRequired>
+      <barrierDirection>down</barrierDirection>
+    </contract>
+  </contracts>
+
+  <risk>
+    <takeProfit>5.00</takeProfit>
+    <stopLoss>10.00</stopLoss>
+    <martingale>false</martingale>
+    <automaticStakeDoubling>false</automaticStakeDoubling>
+    <sessionLevel>true</sessionLevel>
+    <checkBeforeEachPair>true</checkBeforeEachPair>
+    <stopOnAuthFailure>true</stopOnAuthFailure>
+    <stopOnWebsocketDisconnect>true</stopOnWebsocketDisconnect>
+    <stopOnInsufficientFunds>true</stopOnInsufficientFunds>
+    <continueMonitoringOpenContracts>true</continueMonitoringOpenContracts>
+  </risk>
+
+  <engine>
+    <name>PairedTradeEngine</name>
+    <attemptConcurrentPurchases>true</attemptConcurrentPurchases>
+    <requestBothProposalsBeforeBuying>true</requestBothProposalsBeforeBuying>
+    <validateBothProposals>true</validateBothProposals>
+    <requireBothConfirmedForCompletePair>true</requireBothConfirmedForCompletePair>
+    <partialExecutionPolicy>pause_and_report</partialExecutionPolicy>
+    <duplicatePrevention>true</duplicatePrevention>
+    <requestIdTracking>true</requestIdTracking>
+    <heartbeat>true</heartbeat>
+    <safeReconnect>true</safeReconnect>
+    <subscriptionCleanup>true</subscriptionCleanup>
+    <monitorOpenContractsAfterReconnect>true</monitorOpenContractsAfterReconnect>
+    <neverResendBuyWithoutReconciliation>true</neverResendBuyWithoutReconciliation>
+    <overlappingPairs>false</overlappingPairs>
+  </engine>
+
+  <workflow>
+    <step>CONNECT</step>
+    <step>AUTHORIZE</step>
+    <step>VERIFY_ACCOUNT</step>
+    <step>CHECK_RISK_LIMITS</step>
+    <step>REQUEST_BOTH_PROPOSALS</step>
+    <step>VALIDATE_BOTH_PROPOSALS</step>
+    <step>DISPATCH_BOTH_BUY_REQUESTS</step>
+    <step>VERIFY_BOTH_CONTRACTS</step>
+    <step>MONITOR_BOTH_CONTRACTS</step>
+    <step>SETTLE_BOTH_CONTRACTS</step>
+    <step>UPDATE_JOURNAL</step>
+    <step>CHECK_TAKE_PROFIT_STOP_LOSS</step>
+    <step>NEXT_PAIRED_RUN</step>
+  </workflow>
+
+  <journal>
+    <entry format="[HH:MM:SS] Message">Example payloads are generated from actual API responses.</entry>
+    <include>connection_events</include>
+    <include>auth_events</include>
+    <include>proposal_rejections</include>
+    <include>purchase_confirmations</include>
+    <include>partial_executions</include>
+    <include>session_profit_loss_updates</include>
+    <include>risk_control_activations</include>
+    <include>reconnection_attempts</include>
+    <include>api_errors</include>
+  </journal>
+
+  <outcome>
+    <successfulPairOnlyWhenBothContractsConfirmed>true</successfulPairOnlyWhenBothContractsConfirmed>
+    <reportPartiallyExecutedPair>true</reportPartiallyExecutedPair>
+    <neverClaimSimulatedSuccess>false</neverClaimSimulatedSuccess>
+    <realResultsOnly>true</realResultsOnly>
+  </outcome>
+</DerivDoubleTradeBot>
