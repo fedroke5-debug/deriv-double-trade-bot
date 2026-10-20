@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BotImport version="1.0" format="deriv-dbot">
+  <Metadata>
+    <Name>Deriv Double Trade Bot</Name>
+    <Description>Paired HIGHER + LOWER trade bot for R_100 using concurrent proposal requests and buy execution.</Description>
+    <Author>GitHub Copilot</Author>
+    <Created>2026-10-20</Created>
+    <Mode>demo</Mode>
+    <RequireExplicitRealConfirmation>true</RequireExplicitRealConfirmation>
+  </Metadata>
+
+  <Settings>
+    <AppId>1089</AppId>
+    <Endpoint>wss://ws.derivws.com/websockets/v3?app_id=YOUR_APP_ID</Endpoint>
+    <PublicEndpointDeprecated>wss://api.derivws.com/trading/v1/options/ws/public</PublicEndpointDeprecated>
+    <Symbol>R_100</Symbol>
+    <Currency>USD</Currency>
+    <StakePerContract>1.00</StakePerContract>
+    <Duration>5</Duration>
+    <DurationUnit>ticks</DurationUnit>
+    <MaxPairedRuns>10</MaxPairedRuns>
+    <TakeProfit>5.00</TakeProfit>
+    <StopLoss>10.00</StopLoss>
+    <Martingale>false</Martingale>
+    <AutomaticRepeat>true</AutomaticRepeat>
+    <RealTradingEnabled>false</RealTradingEnabled>
+  </Settings>
+
+  <Contracts>
+    <Contract id="higher_call">
+      <TradeType>HIGHER</TradeType>
+      <ContractType>CALL</ContractType>
+      <Barrier>+0.1</Barrier>
+      <Stake>1.00</Stake>
+      <Duration>5</Duration>
+      <DurationUnit>ticks</DurationUnit>
+      <Direction>up</Direction>
+      <ProposalRequired>true</ProposalRequired>
+      <PurchaseRequired>true</PurchaseRequired>
+    </Contract>
+
+    <Contract id="lower_put">
+      <TradeType>LOWER</TradeType>
+      <ContractType>PUT</ContractType>
+      <Barrier>-0.1</Barrier>
+      <Stake>1.00</Stake>
+      <Duration>5</Duration>
+      <DurationUnit>ticks</DurationUnit>
+      <Direction>down</Direction>
+      <ProposalRequired>true</ProposalRequired>
+      <PurchaseRequired>true</PurchaseRequired>
+    </Contract>
+  </Contracts>
+
+  <TradingLogic>
+    <Phase order="1">CONNECT</Phase>
+    <Phase order="2">AUTHORIZE</Phase>
+    <Phase order="3">VERIFY_ACCOUNT</Phase>
+    <Phase order="4">CHECK_RISK_LIMITS</Phase>
+    <Phase order="5">REQUEST_BOTH_PROPOSALS</Phase>
+    <Phase order="6">VALIDATE_BOTH_PROPOSALS</Phase>
+    <Phase order="7">DISPATCH_BOTH_BUY_REQUESTS</Phase>
+    <Phase order="8">VERIFY_BOTH_CONTRACTS</Phase>
+    <Phase order="9">MONITOR_BOTH_CONTRACTS</Phase>
+    <Phase order="10">SETTLE_BOTH_CONTRACTS</Phase>
+    <Phase order="11">UPDATE_JOURNAL</Phase>
+    <Phase order="12">CHECK_TP_SL</Phase>
+    <Phase order="13">NEXT_PAIRED_RUN</Phase>
+  </TradingLogic>
+
+  <RiskRules>
+    <Rule id="tp">Stop opening new pairs when session profit reaches +5.00 USD.</Rule>
+    <Rule id="sl">Stop opening new pairs when session loss reaches -10.00 USD.</Rule>
+    <Rule id="runs">Stop after 10 paired runs.</Rule>
+    <Rule id="manual">Stop immediately when user presses Stop or Emergency Stop.</Rule>
+    <Rule id="auth">Stop if authorization fails or the websocket disconnects.</Rule>
+    <Rule id="proposal">Fail the pair if either proposal is invalid.</Rule>
+    <Rule id="buy">Do not declare completion unless both contracts are confirmed.</Rule>
+    <Rule id="partial">If one contract succeeds and the other fails, mark the run as partial and pause new trades.</Rule>
+    <Rule id="martingale">Disabled.</Rule>
+  </RiskRules>
+
+  <Execution>
+    <ConcurrentProposals>true</ConcurrentProposals>
+    <ConcurrentPurchases>true</ConcurrentPurchases>
+    <RequireBothConfirmedForCompletePair>true</RequireBothConfirmedForCompletePair>
+    <AllowOverlap>false</AllowOverlap>
+    <PreventDuplicatePurchases>true</PreventDuplicatePurchases>
+    <RecoverAfterPartialExecution>false</RecoverAfterPartialExecution>
+    <BestEffortSimultaneity>true</BestEffortSimultaneity>
+  </Execution>
+
+  <Journal>
+    <Entry>Connecting to Deriv API.</Entry>
+    <Entry>Demo account authenticated.</Entry>
+    <Entry>Risk controls verified.</Entry>
+    <Entry>Requesting Higher and Lower proposals.</Entry>
+    <Entry>Both proposals validated.</Entry>
+    <Entry>Dispatching both buy requests.</Entry>
+    <Entry>Higher purchase confirmed — Contract ID: ACTUAL_ID.</Entry>
+    <Entry>Lower purchase confirmed — Contract ID: ACTUAL_ID.</Entry>
+    <Entry>Monitoring both contracts.</Entry>
+    <Entry>Higher settled — actual result recorded.</Entry>
+    <Entry>Lower settled — actual result recorded.</Entry>
+    <Entry>Pair result calculated.</Entry>
+    <Entry>Checking take-profit, stop-loss and maximum runs.</Entry>
+  </Journal>
+</BotImport>
